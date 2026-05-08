@@ -1,6 +1,6 @@
 import requests
 
-# --- !!! IMPORTANT: Replace this with your actual TMDB API Key !!! ---
+
 API_KEY ="94b0c519cb16e7225666f1fed52d6144"
 
 def search_movie(movie_title):
