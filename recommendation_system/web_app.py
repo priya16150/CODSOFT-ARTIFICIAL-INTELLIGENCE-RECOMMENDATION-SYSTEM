@@ -4,7 +4,6 @@ import math
 
 app = Flask(__name__)
 
-# ------------------- Load data without pandas -------------------
 def load_movies():
     movies = []
     with open('data/movies.csv', 'r', encoding='utf-8') as f:
@@ -20,13 +19,9 @@ def load_movies():
 
 movies = load_movies()
 
-# ------------------- Compute TF-IDF + Cosine similarity (simplified) -------------------
-# We'll convert each movie's "genres + overview" into a word count dictionary
-# Then compute cosine similarity between movies.
 
 def get_word_counts(text):
     words = text.lower().split()
-    # remove simple stopwords
     stopwords = {'a', 'an', 'and', 'the', 'of', 'to', 'in', 'for', 'on', 'with', 'by', 'is', 'are', 'was', 'were'}
     words = [w for w in words if w not in stopwords and len(w) > 2]
     freq = {}
@@ -35,18 +30,15 @@ def get_word_counts(text):
     return freq
 
 def compute_tfidf(movies):
-    # Combined text for each movie
     docs = [f"{m['genres']} {m['overview']}" for m in movies]
     word_docs = [get_word_counts(doc) for doc in docs]
     
-    # Document frequency (how many docs contain each word)
     doc_freq = {}
     for wc in word_docs:
         for word in wc:
             doc_freq[word] = doc_freq.get(word, 0) + 1
     N = len(movies)
     
-    # TF-IDF vectors (dictionary of word -> tfidf)
     tfidf_vectors = []
     for wc in word_docs:
         vec = {}
@@ -57,7 +49,6 @@ def compute_tfidf(movies):
     return tfidf_vectors
 
 def cosine_sim(vec1, vec2):
-    # Compute cosine similarity between two dict vectors
     words = set(vec1.keys()) | set(vec2.keys())
     dot = 0
     norm1 = 0
@@ -72,11 +63,9 @@ def cosine_sim(vec1, vec2):
         return 0
     return dot / (math.sqrt(norm1) * math.sqrt(norm2))
 
-# Precompute TF-IDF vectors for all movies
 tfidf_vectors = compute_tfidf(movies)
 
 def recommend_movies(title, top_n=5):
-    # Find index of movie
     idx = None
     for i, m in enumerate(movies):
         if m['title'].lower() == title.lower():
@@ -85,7 +74,6 @@ def recommend_movies(title, top_n=5):
     if idx is None:
         return []
     
-    # Compute similarity with all others
     sim_scores = []
     for i, vec in enumerate(tfidf_vectors):
         if i == idx:
@@ -93,13 +81,11 @@ def recommend_movies(title, top_n=5):
         sim = cosine_sim(tfidf_vectors[idx], vec)
         sim_scores.append((i, sim))
     
-    # Sort by similarity (descending)
     sim_scores.sort(key=lambda x: x[1], reverse=True)
     top_indices = [i for i, _ in sim_scores[:top_n]]
     results = [(movies[i]['title'], round(sim_scores[j][1], 3)) for j, i in enumerate(top_indices)]
     return results
 
-# ------------------- Flask HTML template -------------------
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
