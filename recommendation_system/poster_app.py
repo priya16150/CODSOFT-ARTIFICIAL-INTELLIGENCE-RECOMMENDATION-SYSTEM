@@ -5,8 +5,7 @@ import requests
 
 app = Flask(__name__)
 
-# ========== 1. OMDb API Configuration ==========
-OMDB_API_KEY = "cbf107ba"   # Your active OMDb API key
+OMDB_API_KEY = "cbf107ba"  
 
 def fetch_poster_url(title):
     """Get poster URL from OMDb API (fast, reliable)"""
@@ -23,7 +22,6 @@ def fetch_poster_url(title):
         print(f"Error fetching poster for {title}: {e}")
         return None
 
-# ========== 2. Load movie data from CSV ==========
 def load_movies():
     movies = []
     try:
@@ -37,7 +35,6 @@ def load_movies():
                     'overview': row['overview']
                 })
     except FileNotFoundError:
-        # Fallback sample data if CSV missing
         movies = [
             {'id': '1', 'title': 'The Dark Knight', 'genres': 'Action|Crime|Drama', 'overview': 'Batman fights the Joker.'},
             {'id': '2', 'title': 'Inception', 'genres': 'Action|Sci-Fi|Thriller', 'overview': 'Dream heist.'},
@@ -56,7 +53,6 @@ def load_movies():
 
 movies = load_movies()
 
-# ========== 3. Recommendation Engine (TF‑IDF + Cosine) ==========
 def get_word_counts(text):
     words = text.lower().split()
     stopwords = {'a', 'an', 'and', 'the', 'of', 'to', 'in', 'for', 'on', 'with', 'by', 'is', 'are', 'was', 'were'}
@@ -109,7 +105,6 @@ def recommend_movies(title, top_n=5):
         })
     return results
 
-# ========== 4. HTML Template with Search Bar ==========
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
